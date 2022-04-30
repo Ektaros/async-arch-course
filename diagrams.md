@@ -4,7 +4,7 @@
 # Services
 * auth service
 * task service
-* money and analitics service (analitics turned out super small so just put it in there)
+* money and analytics service (analytics turned out super small so just put it in there)
 
 ## sync communication
 <img width="805" alt="image" src="https://user-images.githubusercontent.com/40774894/166118203-6029f3cb-cf8c-47fe-b14f-8d1456be2484.png">
