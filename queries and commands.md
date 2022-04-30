@@ -23,7 +23,7 @@
 
 * Actor — account
 * Query — get my accounting
-* Data — current balance (auditLog aggregate) + auditLog == (money flow + task data)[]
+* Data — current balance (auditLog aggregate) + auditLog
 
 **Админ может открыть дашборд аналитики**
 
@@ -110,15 +110,15 @@ most expencive tasks (analytics)
 * Actor — task.completed
 * Command —  add payment
 * Data — task + price, auditLog
-* Event — none
+* Event — task.payout
 
 **Нужно "проанализировать" завершенную задачу**
 
 (Нужно показывать самую дорогую задачу за день, неделю или месяц.)
 
-* Actor — task.completed
+* Actor — task.payout
 * Command —  analyze complited task
-* Data — task + price, analytics 
+* Data — price, analytics 
 * Event — none
 
 ### Цепочка подсчета в конце дня
