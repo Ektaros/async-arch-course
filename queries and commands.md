@@ -63,23 +63,13 @@ most expencive tasks (analytics)
 * Event — task.added
 
 
-**Новой таске нужно определить цену**
+**Новой таске нужно определить цену и провести первичное списание**
 
 (цены на задачу определяется единоразово, в момент появления в системе)
 
 * Actor — task.added
-* Command — generate task prices
-* Data — task + prices
-* Event — task.addedPrices
-
-
-**Нужно списать деньги за ассинг новой таски**
-
-(деньги списываются сразу после ассайна на сотрудника)
-
-* Actor — task.addedPrices
-* Command — charge for *new task* assignment
-* Data — task + prices,  auditLog
+* Command — set task price
+* Data — task + prices, auditLog
 * Event — none
 
 ### Цепочка реайссайна тасок
