@@ -1,14 +1,15 @@
 # Data diagram and domains
-<img width="851" alt="image" src="https://user-images.githubusercontent.com/40774894/166118248-2d553902-6da3-4989-a92a-08b29ee693c8.png">
+<img width="600" alt="image" src="https://user-images.githubusercontent.com/40774894/166123248-075ac701-f316-47db-a721-5fb5e5071778.png">
+
 
 # Services
-* auth service
 * task service
 * money and analytics service (analytics turned out super small so just put it in there)
 
 ## sync communication
-<img width="805" alt="image" src="https://user-images.githubusercontent.com/40774894/166118203-6029f3cb-cf8c-47fe-b14f-8d1456be2484.png">
+<img width="600" alt="image" src="https://user-images.githubusercontent.com/40774894/166123271-bf76e6e8-225c-44a3-b58f-8a757bedf43c.png">
+
 
 ## async communications
-<img width="602" alt="image" src="https://user-images.githubusercontent.com/40774894/166118927-f4f71260-62b4-46ed-92a4-18840dd76560.png">
+<img width="600" alt="image" src="https://user-images.githubusercontent.com/40774894/166123278-38f55ca9-85e2-4dd2-badd-ea4831b53a7b.png">
 
