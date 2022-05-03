@@ -14,7 +14,7 @@
 
 * Actor — account: role == *accountant* or *admin*
 * Query — get accounting
-* Data — money made today (audit log aggregate) + daily stats
+* Data — money made today (operations aggregate) + summary
 
 **Пользователь может получить информацию о своих счетах**
 
@@ -23,7 +23,7 @@
 
 * Actor — account
 * Query — get my accounting
-* Data — current balance (auditLog aggregate) + auditLog
+* Data — current balance (operations aggregate) + audit log (operations)
 
 **Админ может открыть дашборд аналитики**
 
@@ -34,9 +34,9 @@
 * Actor — account: role = *admin*
 * Query — get analytics
 * Data: 
-  - money made today, (auditLog aggregate)
-  - negative balances count, (auditLog aggregate)
-  - max prices per day/week/... (analytics)
+  - money made today, (operations aggregate)
+  - negative balances count, (operations aggregate)
+  - max prices per day/week/... (summary)
 
 ## Commands:
 
@@ -60,17 +60,17 @@
 * Actor — account
 * Command — Add task
 * Data — task (name, description, assignedTo(randomly generated) etc)
-* Event — task.added
+* Event — task.added (not used) / task.assigned
 
 
-**Новой таске нужно определить цену и провести первичное списание**
+**Нужно списать деньги за ассигн таски**
 
 *цены на задачу определяется единоразово, в момент появления в системе*
 
-* Actor — task.added
-* Command — set task price
-* Data — task + prices, auditLog
-* Event — none
+* Actor — task.assigned
+* Command — charge for task asisgnment
+* Data — task + prices, operations
+* Event — operation.debited (not used)
 
 ### Цепочка реайссайна тасок
 
@@ -89,8 +89,8 @@
 
 * Actor — task.assigned
 * Command — charge for task assignment
-* Data — task + prices, auditLog
-* Event — none
+* Data — task + prices, operations
+* Event — operation.debited (not used)
 
 ### Цепочка завершения таски
 
@@ -109,17 +109,8 @@
 
 * Actor — task.completed
 * Command —  add payment
-* Data — task + price, auditLog
-* Event — task.payout
-
-**Нужно "проанализировать" завершенную задачу**
-
-*Нужно показывать самую дорогую задачу за день, неделю или месяц.*
-
-* Actor — task.payout
-* Command —  analyze complited task
-* Data — price, analytics 
-* Event — none
+* Data — task + price, operations
+* Event — operation.credited (not used)
 
 ### Цепочка подсчета в конце дня
 
@@ -127,16 +118,16 @@
 
 *В конце дня необходимо считать сколько денег сотрудник получил за рабочий день*
 
-* Actor — day ended (event sent by some cron?)
+* Actor — day ended (event sent by some cron)
 * Command — start summary
-* Data — many (auditLog + account) + save daily stats
-* Event — many account.payout
+* Data — many (operations + account) + summary
+* Event — many operation.paymentMade
 
-**Нужно оправить письмо**
+**Нужно отправить на почтту выплату** ???
 
 *В конце дня необходимо отправлять на почту сумму выплаты.*
 
-* Actor — account.payout
-* Command —  send payout email
-* Data — auditLog + account
-* Event — account.payoutSent (not used)
+* Actor — account.paymentMade
+* Command — send payment email
+* Data — many (operations + account) + summary
+* Event — account.paymentEmailSent (not used)
