@@ -1,5 +1,5 @@
 # Data diagram and domains
-<img width="600" alt="image" src="https://user-images.githubusercontent.com/40774894/166123248-075ac701-f316-47db-a721-5fb5e5071778.png">
+<img width="772" alt="image" src="https://user-images.githubusercontent.com/40774894/166555144-c74eeb88-0a45-47aa-95ea-c8a9d24895d1.png">
 
 
 # Services
@@ -11,5 +11,6 @@
 
 
 ## async communications
-<img width="600" alt="image" src="https://user-images.githubusercontent.com/40774894/166123278-38f55ca9-85e2-4dd2-badd-ea4831b53a7b.png">
+<img width="799" alt="image" src="https://user-images.githubusercontent.com/40774894/166555344-e2eba5cc-fc5b-4ef7-8203-486866adc698.png">
+
 
