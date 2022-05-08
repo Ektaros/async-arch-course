@@ -25,7 +25,7 @@ class AccountStore extends MysqlStore {
           publicId UUID NOT NULL,
           title VARCHAR(100) NOT NULL,
           description TEXT,
-          status ENUM('open', 'complited') DEFAULT 'open',
+          status ENUM('open', 'completed') DEFAULT 'open',
           assignee UUID NOT NULL,
           createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
           updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -60,9 +60,9 @@ class AccountStore extends MysqlStore {
   }
   async getAllWorkersIds() {
     const excludedRoles = ['manager', 'admin']
-    const [accountIds] = await this.query('SELECT publicId FROM accounts WHERE role NOT IN (:excludedRoles)', { excludedRoles })
+    const [accounts] = await this.query('SELECT publicId FROM accounts WHERE role NOT IN (:excludedRoles)', { excludedRoles })
 
-    return accountIds
+    return accounts.map(({ publicId }) => publicId)
   }
 
   async createAccount({ publicId, name, email, role }) {
@@ -129,16 +129,28 @@ class AccountStore extends MysqlStore {
     return tasks
   }
   async getAllOpen() {
-    const [tasks] = await this.query('SELECT * FROM tasks WHERE status = :status', { status: 'open' })
+    const [tasks] = await this.query(`SELECT publicId, assignee FROM tasks WHERE status = 'open'`)
 
-    return tasks
+    return tasks.map(({ publicId }) => publicId)
   }
   async reassign(taskPublicId, assignee) {
     const [{ changedRows }] = await this.query(
       `
       UPDATE tasks 
       SET assignee = :assignee
-      WHERE publicId = :taskPublicId
+      WHERE publicId = :taskPublicId and status = 'open'
+    `,
+      { taskPublicId, assignee }
+    )
+
+    return Boolean(changedRows)
+  }
+  async complete(taskPublicId) {
+    const [{ changedRows }] = await this.query(
+      `
+      UPDATE tasks 
+      SET status = 'completed'
+      WHERE publicId = :taskPublicId and status = 'open'
     `,
       { taskPublicId, assignee }
     )

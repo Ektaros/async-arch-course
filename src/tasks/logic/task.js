@@ -1,3 +1,4 @@
+const { sample } = require('lodash')
 const { taskStore } = require('../stores')
 const publisher = require('../publisher')
 const logger = require('../../lib/logger')
@@ -16,9 +17,22 @@ const add = async ({ title, description }) => {
   return taskPublicId
 }
 
-const reassign = async () => {}
+const reassignAll = async () => {
+  const accountsPool = await taskStore.getAllWorkersIds()
+  const tasksPool = await taskStore.getAllOpen()
+
+  await Promise.allSettled(
+    tasksPool.map(async (taskPublicId) => {
+      const assignee = sample(accountsPool)
+
+      const success = await taskStore.reassign(taskPublicId, assignee)
+
+      if (success) publisher.sendTaskAssigned(taskPublicId, { taskPublicId, assignee })
+    })
+  )
+}
 
 module.exports = {
   add,
-  reassign,
+  reassignAll,
 }
