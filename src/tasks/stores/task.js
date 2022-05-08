@@ -145,14 +145,14 @@ class AccountStore extends MysqlStore {
 
     return Boolean(changedRows)
   }
-  async complete(taskPublicId) {
+  async complete(accountPublicId, taskPublicId) {
     const [{ changedRows }] = await this.query(
       `
       UPDATE tasks 
       SET status = 'completed'
-      WHERE publicId = :taskPublicId and status = 'open'
+      WHERE publicId = :taskPublicId and assignee = :accountPublicId and status = 'open'
     `,
-      { taskPublicId, assignee }
+      { accountPublicId, taskPublicId }
     )
 
     return Boolean(changedRows)

@@ -33,4 +33,17 @@ module.exports = {
 
     await publisher.send('tasks', taskPublicId, event)
   },
+  sendTaskCompleted: async (taskPublicId) => {
+    const event = {
+      eventName: 'completed',
+      eventVersion: 1,
+      eventTime: Date.now(),
+      producer: 'tasks-service',
+      data: { taskPublicId },
+    }
+
+    logger.debug('sending task completed event', { event })
+
+    await publisher.send('tasks', taskPublicId, event)
+  },
 }

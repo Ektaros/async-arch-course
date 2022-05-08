@@ -17,6 +17,14 @@ const add = async ({ title, description }) => {
   return taskPublicId
 }
 
+const complete = async (accountPublicId, taskPublicId) => {
+  const success = await taskStore.complete(accountPublicId, taskPublicId)
+
+  if (success) await publisher.sendTaskCompleted(taskPublicId)
+
+  return success
+}
+
 const reassignAll = async () => {
   const accountsPool = await taskStore.getAllWorkersIds()
   const tasksPool = await taskStore.getAllOpen()
@@ -34,5 +42,6 @@ const reassignAll = async () => {
 
 module.exports = {
   add,
+  complete,
   reassignAll,
 }
