@@ -15,7 +15,7 @@ const update = async (publicId, { role, name, email }) => {
 
   logger.debug('update account', { success, publicId, role, name, email })
 
-  if (success) await publisher.sendAccountStream('updated', publicId, { role, name, email })
+  if (success) await publisher.sendAccountStream('updated', publicId, { publicId, role, name, email })
 
   return success
 }

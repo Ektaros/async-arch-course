@@ -1,14 +1,19 @@
-const { accountStore } = require('../stores')
+const { taskStore } = require('../stores')
 const publisher = require('../publisher')
 const logger = require('../../lib/logger')
 
-const add = async ({ login, role, name, email }) => {
-  const account = await accountStore.create({ login, role, name, email })
-  logger.debug('created account', account)
+const add = async ({ title, description }) => {
+  const assignee = await taskStore.getRandomWorkerId()
+  if (!assignee) throw new Error('No wrokers available for the task')
 
-  if (account) await publisher.sendAccountStream('created', account.publicId, account)
+  const task = await taskStore.create({ title, description, assignee })
+  const taskPublicId = task.publicId
+  logger.debug('created task', task)
 
-  return account.publicId
+  await publisher.sendTaskStream('created', taskPublicId, task)
+  await publisher.sendTaskAssigned(taskPublicId, { taskPublicId, assignee })
+
+  return taskPublicId
 }
 
 const reassign = async () => {}

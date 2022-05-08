@@ -1,5 +1,6 @@
 const Router = require('@koa/router')
-const { authMiddleware, roleChecker } = require('../../lib/middlewares')
+const { roleChecker } = require('../../lib/middlewares')
+const { authMiddleware } = require('../middlewares')
 const { taskLogic } = require('../logic')
 const { taskStore } = require('../stores')
 

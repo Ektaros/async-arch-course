@@ -7,18 +7,30 @@ const publisher = new SimplePublisher(config.kafka)
 // TODO: add validation (ajv), versions, eventId (for idempotency), method for every event name (with wrapper)
 
 module.exports = {
-  sendTaskStream: async (eventName, key, data) => {
+  sendTaskStream: async (eventName, taskPublicId, data) => {
     const event = {
       eventName,
       eventVersion: 1,
       eventTime: Date.now(),
-      producer: 'auth-service',
+      producer: 'tasks-service',
       data,
     }
 
-    logger.debug('sending event', { eventName, event })
+    logger.debug('sending cud task event', { eventName, event })
 
-    await publisher.send('account-stream', key, event)
+    await publisher.send('tasksStream', taskPublicId, event)
   },
-  sendTaskEvent: async (eventName, key, data) => {},
+  sendTaskAssigned: async (taskPublicId, data) => {
+    const event = {
+      eventName: 'assigned',
+      eventVersion: 1,
+      eventTime: Date.now(),
+      producer: 'tasks-service',
+      data,
+    }
+
+    logger.debug('sending task assigned event', { event })
+
+    await publisher.send('tasks', taskPublicId, event)
+  },
 }

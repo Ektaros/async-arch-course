@@ -46,7 +46,7 @@ class AccountStore extends MysqlStore {
 
   async getRandomWorkerId() {
     const excludedRoles = ['manager', 'admin']
-    const [[accountId]] = await this.query(
+    const [[account]] = await this.query(
       `
         SELECT publicId FROM accounts 
         WHERE role NOT IN (:excludedRoles)
@@ -56,7 +56,7 @@ class AccountStore extends MysqlStore {
       { excludedRoles }
     )
 
-    return accountId
+    return account?.publicId
   }
   async getAllWorkersIds() {
     const excludedRoles = ['manager', 'admin']
@@ -102,7 +102,22 @@ class AccountStore extends MysqlStore {
     return Boolean(changedRows)
   }
   // task methods ----------------------------------------------------
+  async create(taskData) {
+    const [[task]] = await this.query(
+      `INSERT INTO tasks (
+        publicId, title, description, assignee
+      ) VALUES (
+        :publicId, :title, :description, :assignee
+      ) RETURNING *
+    `,
+      {
+        ...taskData,
+        publicId: uuidv4(),
+      }
+    )
 
+    return task
+  }
   async get(taskPublicId) {
     const [[task]] = await this.query('SELECT * FROM tasks WHERE publicId = :taskPublicId', { taskPublicId })
 
