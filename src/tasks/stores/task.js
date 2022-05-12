@@ -41,7 +41,13 @@ class AccountStore extends MysqlStore {
   }
   // TODO separate!!!
   // account methods -------------------------------------------------
-  async getAccount(publicId) {
+  async getAccount(id) {
+    const [[account]] = await this.query('SELECT * FROM accounts WHERE id = :id', { id })
+
+    return account
+  }
+
+  async getAccountByPublicId(publicId) {
     const [[account]] = await this.query('SELECT * FROM accounts WHERE publicId = :publicId', { publicId })
 
     return account

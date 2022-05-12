@@ -34,7 +34,7 @@ module.exports = {
     await publisher.send('tasks-lifecycle', publicId, event)
   },
   // TODO: redo this trash approach
-  sendTaskCompletedBatch: async (eventsData) => {
+  sendTaskAssignedBatch: async (eventsData) => {
     const batch = eventsData.map(({ publicId, assigneePublicId }) => ({
       key: publicId,
       data: {
@@ -50,13 +50,13 @@ module.exports = {
 
     await publisher.sendBatch('tasks-lifecycle', batch)
   },
-  sendTaskCompleted: async (publicId) => {
+  sendTaskCompleted: async (taskPublicId, accountPublicId) => {
     const event = {
       eventName: 'completed',
       eventVersion: 1,
       eventTime: Date.now(),
       producer: 'tasks-service',
-      data: { publicId },
+      data: { taskPublicId, accountPublicId },
     }
 
     logger.debug('sending task completed event', { event })

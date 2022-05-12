@@ -8,11 +8,11 @@ const add = async ({ title, description }) => {
   if (!account) throw new Error('No wrokers available for the task')
 
   const task = await taskStore.create({ title, description, assignee: account.id })
-  const taskPublicId = task.publicId
+
   logger.debug('created task', task)
 
-  await publisher.sendTaskStream('created', taskPublicId, task)
-  await publisher.sendTaskAssigned(taskPublicId, { taskPublicId, assignee: account.publicId })
+  await publisher.sendTaskStream('created', task.publicId, task)
+  await publisher.sendTaskAssigned(task.publicId, account.publicId)
 
   return task
 }
@@ -21,8 +21,8 @@ const complete = async (accountId, taskId) => {
   const success = await taskStore.complete(accountId, taskId)
 
   if (success) {
-    const { publicId } = await taskStore.get(taskId)
-    await publisher.sendTaskCompleted(publicId)
+    const [account, task] = await Promise.all([taskStore.getAccount(accountId), taskStore.get(taskId)])
+    await publisher.sendTaskCompleted(task.publicId, account.publicId)
   }
 
   return success
