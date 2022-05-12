@@ -7,43 +7,60 @@ const publisher = new SimplePublisher(config.kafka)
 // TODO: add validation (ajv), versions, eventId (for idempotency), method for every event name (with wrapper)
 
 module.exports = {
-  sendTaskStream: async (eventName, taskPublicId, data) => {
+  sendTaskStream: async (eventName, publicId, { title, description }) => {
     const event = {
       eventName,
       eventVersion: 1,
       eventTime: Date.now(),
       producer: 'tasks-service',
-      data,
+      data: { publicId, title, description },
     }
 
     logger.debug('sending cud task event', { eventName, event })
 
     await publisher.send('tasksStream', taskPublicId, event)
   },
-  sendTaskAssigned: async (taskPublicId, data) => {
+  sendTaskAssigned: async (publicId, assigneePublicId) => {
     const event = {
       eventName: 'assigned',
       eventVersion: 1,
       eventTime: Date.now(),
       producer: 'tasks-service',
-      data,
+      data: { publicId, assigneePublicId },
     }
 
     logger.debug('sending task assigned event', { event })
 
-    await publisher.send('tasks', taskPublicId, event)
+    await publisher.send('tasks-lifecycle', publicId, event)
   },
-  sendTaskCompleted: async (taskPublicId) => {
+  // TODO: redo this trash approach
+  sendTaskCompletedBatch: async (eventsData) => {
+    const batch = eventsData.map(({ publicId, assigneePublicId }) => ({
+      key: publicId,
+      data: {
+        eventName: 'assigned',
+        eventVersion: 1,
+        eventTime: Date.now(),
+        producer: 'tasks-service',
+        data: { publicId, assigneePublicId },
+      },
+    }))
+
+    logger.debug('sending task assigned  batch', { batch })
+
+    await publisher.sendBatch('tasks-lifecycle', batch)
+  },
+  sendTaskCompleted: async (publicId) => {
     const event = {
       eventName: 'completed',
       eventVersion: 1,
       eventTime: Date.now(),
       producer: 'tasks-service',
-      data: { taskPublicId },
+      data: { publicId },
     }
 
     logger.debug('sending task completed event', { event })
 
-    await publisher.send('tasks', taskPublicId, event)
+    await publisher.send('tasks-lifecycle', publicId, event)
   },
 }

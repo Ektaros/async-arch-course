@@ -10,10 +10,13 @@ class AccountStore extends MysqlStore {
       [
         `
         CREATE TABLE IF NOT EXISTS accounts (
+          id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
           publicId UUID NOT NULL PRIMARY KEY,
           name VARCHAR(100) NOT NULL,
           email VARCHAR(100) NOT NULL,
           role ENUM('worker', 'accountant', 'admin', 'manager'),
+          createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
           UNIQUE KEY (publicId)
         )
       `,
@@ -26,7 +29,7 @@ class AccountStore extends MysqlStore {
           title VARCHAR(100) NOT NULL,
           description TEXT,
           status ENUM('open', 'completed') DEFAULT 'open',
-          assignee UUID NOT NULL,
+          assignee INT NOT NULL,
           createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
           updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
           UNIQUE KEY (publicId),
@@ -44,11 +47,11 @@ class AccountStore extends MysqlStore {
     return account
   }
 
-  async getRandomWorkerId() {
+  async getRandomWorker() {
     const excludedRoles = ['manager', 'admin']
     const [[account]] = await this.query(
       `
-        SELECT publicId FROM accounts 
+        SELECT id, publicId FROM accounts 
         WHERE role NOT IN (:excludedRoles)
         ORDER BY RAND()
         LIMIT 1
@@ -56,13 +59,13 @@ class AccountStore extends MysqlStore {
       { excludedRoles }
     )
 
-    return account?.publicId
+    return account
   }
-  async getAllWorkersIds() {
+  async getAllWorkers() {
     const excludedRoles = ['manager', 'admin']
-    const [accounts] = await this.query('SELECT publicId FROM accounts WHERE role NOT IN (:excludedRoles)', { excludedRoles })
+    const [accounts] = await this.query('SELECT id, publicId FROM accounts WHERE role NOT IN (:excludedRoles)', { excludedRoles })
 
-    return accounts.map(({ publicId }) => publicId)
+    return accounts
   }
 
   async createAccount({ publicId, name, email, role }) {
@@ -118,29 +121,29 @@ class AccountStore extends MysqlStore {
 
     return task
   }
-  async get(taskPublicId) {
-    const [[task]] = await this.query('SELECT * FROM tasks WHERE publicId = :taskPublicId', { taskPublicId })
+  async get(id) {
+    const [[task]] = await this.query('SELECT * FROM tasks WHERE id = :id', { id })
 
     return task
   }
-  async getMy(accountPublicId) {
-    const [tasks] = await this.query('SELECT * FROM tasks WHERE assignee = :accountPublicId', { accountPublicId })
+  async getMy(accountId) {
+    const [tasks] = await this.query('SELECT * FROM tasks WHERE assignee = :accountId', { accountId })
 
     return tasks
   }
   async getAllOpen() {
-    const [tasks] = await this.query(`SELECT publicId, assignee FROM tasks WHERE status = 'open'`)
+    const [tasks] = await this.query(`SELECT id, publicId, assignee FROM tasks WHERE status = 'open'`)
 
-    return tasks.map(({ publicId }) => publicId)
+    return tasks
   }
-  async reassign(taskPublicId, assignee) {
+  async reassign(taskId, assignee) {
     const [{ changedRows }] = await this.query(
       `
       UPDATE tasks 
       SET assignee = :assignee
-      WHERE publicId = :taskPublicId and status = 'open'
+      WHERE id = :taskId and status = 'open'
     `,
-      { taskPublicId, assignee }
+      { taskId, assignee }
     )
 
     return Boolean(changedRows)

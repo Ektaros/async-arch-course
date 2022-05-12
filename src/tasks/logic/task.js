@@ -4,23 +4,26 @@ const publisher = require('../publisher')
 const logger = require('../../lib/logger')
 
 const add = async ({ title, description }) => {
-  const assignee = await taskStore.getRandomWorkerId()
-  if (!assignee) throw new Error('No wrokers available for the task')
+  const account = await taskStore.getRandomWorker()
+  if (!account) throw new Error('No wrokers available for the task')
 
-  const task = await taskStore.create({ title, description, assignee })
+  const task = await taskStore.create({ title, description, assignee: account.id })
   const taskPublicId = task.publicId
   logger.debug('created task', task)
 
   await publisher.sendTaskStream('created', taskPublicId, task)
-  await publisher.sendTaskAssigned(taskPublicId, { taskPublicId, assignee })
+  await publisher.sendTaskAssigned(taskPublicId, { taskPublicId, assignee: account.publicId })
 
-  return taskPublicId
+  return task
 }
 
-const complete = async (accountPublicId, taskPublicId) => {
-  const success = await taskStore.complete(accountPublicId, taskPublicId)
+const complete = async (accountId, taskId) => {
+  const success = await taskStore.complete(accountId, taskId)
 
-  if (success) await publisher.sendTaskCompleted(taskPublicId)
+  if (success) {
+    const { publicId } = await taskStore.get(taskId)
+    await publisher.sendTaskCompleted(publicId)
+  }
 
   return success
 }
@@ -29,15 +32,19 @@ const reassignAll = async () => {
   const accountsPool = await taskStore.getAllWorkersIds()
   const tasksPool = await taskStore.getAllOpen()
 
+  const eventsData = []
+
   await Promise.allSettled(
-    tasksPool.map(async (taskPublicId) => {
-      const assignee = sample(accountsPool)
+    tasksPool.map(async (task) => {
+      const account = sample(accountsPool)
 
-      const success = await taskStore.reassign(taskPublicId, assignee)
+      const success = await taskStore.reassign(task.id, account.id)
 
-      if (success) publisher.sendTaskAssigned(taskPublicId, { taskPublicId, assignee })
+      if (success) eventsData.push({ taskPublicId: task.publicId, assigneePublicId: account.publicId })
     })
   )
+
+  await publisher.sendTaskCompletedBatch(eventsData)
 }
 
 module.exports = {

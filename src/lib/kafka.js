@@ -21,6 +21,13 @@ class SimplePublisher {
       messages: [{ key, value: JSON.stringify(data) }],
     })
   }
+  async sendBatch(topic, batch) {
+    await this.ready
+    await this.producer.send({
+      topic,
+      messages: batch.map(({ key, data }) => ({ key, value: JSON.stringify(data) })),
+    })
+  }
 }
 
 class SimpleConsumer {

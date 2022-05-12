@@ -14,7 +14,7 @@ class AccountStore extends MysqlStore {
         email VARCHAR(100) NOT NULL,
         role ENUM('worker', 'accountant', 'admin', 'manager'),
         createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         UNIQUE KEY (publicId),
         UNIQUE KEY (login)
       )
@@ -23,8 +23,8 @@ class AccountStore extends MysqlStore {
     ])
   }
 
-  async get(publicId) {
-    const [[account]] = await this.query('SELECT * FROM accounts WHERE publicId = :publicId', { publicId })
+  async get(id) {
+    const [[account]] = await this.query('SELECT * FROM accounts WHERE id = :id', { id })
 
     return account
   }
@@ -65,7 +65,7 @@ class AccountStore extends MysqlStore {
 
     return account
   }
-  async update(publicId, { name, email, role }) {
+  async update(id, { name, email, role }) {
     const fields = []
     if (name) fields.push('name = :name')
     if (role) fields.push('role = :role')
@@ -77,10 +77,10 @@ class AccountStore extends MysqlStore {
       `
       UPDATE accounts 
        SET ${fields.join(', ')}
-      WHERE publicId = :publicId
+      WHERE id = :id
     `,
       {
-        publicId,
+        id,
         name,
         email,
         role,
