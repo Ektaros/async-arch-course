@@ -1,0 +1,33 @@
+{
+  "name": "async-arch-course",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "auth": "nodemon src/auth/index.js",
+    "tasks": "nodemon src/tasks/index.js",
+    "money": "nodemon src/money/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ektaros/async-arch-course.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Ektaros/async-arch-course/issues"
+  },
+  "homepage": "https://github.com/Ektaros/async-arch-course#readme",
+  "dependencies": {
+    "@koa/router": "^10.1.1",
+    "kafkajs": "^2.0.0",
+    "koa": "^2.13.4",
+    "koa-body": "^5.0.0",
+    "lodash": "^4.17.21",
+    "mysql2": "^2.3.3",
+    "nodemin": "^1.0.1",
+    "nodemon": "^2.0.16",
+    "uuid": "^8.3.2"
+  }
+}
